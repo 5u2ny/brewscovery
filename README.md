@@ -1,33 +1,58 @@
-# Brewscovery 🍺
+<div align="center">
 
-**Premium craft beer discovery & subscription — curated tasting packs, personalized recommendations, and independent brewhouses, delivered.**
+# 🍺 Brewscovery
 
-A portfolio-grade full-stack product demo built with Next.js 14, TypeScript, Tailwind CSS, and shadcn/ui. Brewscovery centers on **Discovery Mix**, a monthly curated tasting pack of four 8oz pours matched to your palate.
+### Premium craft beer discovery & subscription — curated tasting packs, personalized recommendations, and independent brewhouses, delivered.
+
+[![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-38bdf8?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
+[![shadcn/ui](https://img.shields.io/badge/shadcn%2Fui-latest-111?style=for-the-badge)](https://ui.shadcn.com/)
+[![License](https://img.shields.io/badge/License-MIT-amber?style=for-the-badge)](#license)
+
+</div>
 
 ---
 
-## ✨ Key Features
+## 🎯 Product
 
-### Customer
-- Premium dark craft-beverage brand system (black / gold / warm cream)
-- Age gate on first visit
-- Mock auth (sign-in / sign-up / sign-out)
-- 6-step taste onboarding quiz — adventure level, styles, flavors, ABV, NA, local
-- Discover catalog with style / flavor / ABV / local / NA filters and search
-- Beer detail pages with tasting notes, favorites, 5-star rating
-- Brewery profile pages with origin story + full lineup
-- Discovery Mix page with curated packs + personalized lineup
-- Transparent, explainable **rules-based recommendation engine**
-- Cart + test checkout (no real charges)
-- Subscription management (active / pause / resume / cancel)
-- Customer dashboard (favorites, subscription, taste profile)
+Brewscovery is a portfolio-grade full-stack product demo centered on **Discovery Mix** — a monthly curated tasting pack of four 8oz pours, matched to each drinker's palate. The product promise: *curated selection, personalization, home delivery, smaller tasting quantities, local brewery support, and responsible drinking from home.*
 
-### Admin
-- Gated by email (`admin@brewscovery.com` → admin role)
-- Overview with KPI cards, top pours, catalog counts
-- Beers CRUD (in-memory — demonstrates the surface)
-- Breweries & Packs management
-- Analytics: retention and conversion funnel visualizations
+Every page is built around that promise: a premium dark brand system, a taste-quiz onboarding, transparent rules-based recommendations, a subscription-first cart, and a real admin surface for managing the catalog.
+
+---
+
+## ✨ Feature Highlights
+
+| Customer | Admin |
+|---|---|
+| Age gate on first visit | KPI overview (subscribers, revenue, shipments, avg rating) |
+| Mock auth (sign-in / sign-up / admin role via email) | Beers CRUD with dialog editor |
+| 6-step taste quiz (adventure / styles / flavors / ABV / NA / local) | Brewery & Discovery Mix pack management |
+| Catalog with search + style / ABV / flavor / local / NA filters | Retention chart + conversion funnel analytics |
+| Beer detail (tasting notes, flavors, favorites, 5-star rating) | Admin-gated routes (`admin@brewscovery.com` login) |
+| Brewery profile pages with origin story + full lineup | |
+| Discovery Mix: 4 curated packs + personalized lineup with **match scores** + reasons | |
+| Cart + test-mode checkout → activates subscription | |
+| Customer dashboard: favorites / subscription (pause / resume / cancel) / taste profile | |
+
+---
+
+## 🧠 Recommendation Engine (rules-based, explainable)
+
+Instead of a black-box model, Brewscovery scores each beer against the user's palate on **7 transparent signals** (see [`lib/recommendations.ts`](lib/recommendations.ts)):
+
+| Signal | Max points | Why it matters |
+|---|---:|---|
+| Flavor overlap | 30 | Strongest single predictor |
+| Style preference | 20 | Direct user choice |
+| ABV fit | 15 | Penalized when outside range |
+| Local preference | 10 | Supports independent brewhouses |
+| Non-alcoholic interest | 10 | Boosts / demotes NA explicitly |
+| Adventure fit | 10 | Matches Sours / Saisons to high-adventure, classics to low |
+| Popularity + rating prior | 5 | Light social proof tiebreaker |
+
+Each recommendation card surfaces its top reasons to the customer — so "85% match · Matches 2 flavors you love · Local brewery" shows up right on the card.
 
 ---
 
@@ -35,102 +60,129 @@ A portfolio-grade full-stack product demo built with Next.js 14, TypeScript, Tai
 
 ```
 app/
-  (routes)/           → Next.js App Router pages
-  layout.tsx          → Root shell + Providers + Age gate
+  layout.tsx             → Root shell: Providers + Age gate + Header + Footer
+  page.tsx               → Marketing home
+  onboarding/            → 6-step taste quiz
+  discover/              → Filterable catalog
+  beer/[slug]/           → Beer detail + related
+  brewery/[slug]/        → Brewery profile
+  discovery-mix/         → Curated packs + personalized lineup
+  cart/  checkout/       → Cart + test checkout
+  auth/sign-in, sign-up  → Mock auth
+  dashboard/             → Customer: favorites / subscription / taste profile
+  admin/                 → Admin layout, beers/breweries/packs/analytics
 components/
-  ui/                 → shadcn/ui primitives (button, card, dialog, …)
-  site/               → Header, footer, age gate, providers
-  beer/               → Domain components (BeerCard)
+  ui/                    → shadcn/ui primitives (button, card, dialog, …)
+  site/                  → Header, footer, age gate, providers
+  beer/beer-card.tsx     → Core domain card
 lib/
-  data/               → Seeded breweries, beers, packs
-  store/              → Client state (auth, cart, preferences)
-  recommendations.ts  → Rules-based taste-match scoring
-  types.ts            → Domain model
-  utils.ts            → cn / formatCurrency / slugify
+  data/                  → Seeded breweries, beers, packs
+  store/                 → Client state (auth, cart, preferences)
+  recommendations.ts     → Rules-based taste-match scoring
+  types.ts               → Domain model
+  utils.ts               → cn / formatCurrency / slugify
 ```
 
-### Recommendation engine
-Transparent scoring: flavor overlap (≤30) + style match (≤20) + ABV fit (≤15) + local (≤10) + NA (≤10) + adventure fit (≤10) + popularity/rating prior (≤5). Every match shows its top reasons to the user — explainability over black-box.
+### State & Persistence
+All client state lives in `localStorage`:
 
-### State
-All client state is persisted via `localStorage`:
-- `brewscovery:user` — mock auth + favorites + ratings + subscription
-- `brewscovery:prefs` — taste profile
-- `brewscovery:cart` — cart items
-- `brewscovery:age-confirmed` — age-gate confirmation
+| Key | Purpose |
+|---|---|
+| `brewscovery:user` | Mock auth, favorites, ratings, subscription |
+| `brewscovery:prefs` | Taste profile |
+| `brewscovery:cart` | Cart items |
+| `brewscovery:age-confirmed` | Age-gate confirmation |
 
-The admin CRUD runs against an in-session in-memory copy of the seeded catalog.
+Admin CRUD operates on an in-session in-memory copy of the seeded catalog — designed so swapping to a real database (Prisma + Postgres) is a one-file change in `lib/data`.
+
+---
+
+## 🎨 Design System
+
+- **Foundation:** shadcn/ui only — no other UI kits
+- **Palette:** deep charcoal (`--background`), amber gold (`--primary`), warm cream text
+- **Typography:** serif display + clean sans body
+- **Motion:** restrained — no gradient spam, no glass-UI clichés
+- **Imagery:** editorial, high-contrast, warm-shadowed
 
 ---
 
 ## 🚀 Getting Started
 
 ```bash
+# 1. Install
 npm install
+
+# 2. Run
 npm run dev
-# open http://localhost:3000
+
+# 3. Open
+# http://localhost:3000
 ```
 
-### Try the full flow
-1. Confirm age gate
-2. `Start taste quiz` → complete the 6 steps
-3. See your personalized lineup on `/discovery-mix`
-4. Add a **Signature Discovery Mix** to cart
+### Walk the full flow
+1. Confirm the age gate
+2. **Start taste quiz** → complete the 6 steps
+3. Land on `/discovery-mix` and see your personalized lineup with match scores
+4. Add **Signature Discovery Mix** to cart
 5. `/auth/sign-up` → create an account
-6. `/checkout` → place a test order → subscription is activated
-7. Visit `/dashboard` — pause or cancel your subscription
-8. Sign in with `admin@brewscovery.com` (any password) → access `/admin`
-
----
-
-## 🎨 Design System
-
-- **Foundation:** shadcn/ui only (no other UI kits)
-- **Palette:** deep charcoal backgrounds, amber-gold accents, warm cream text
-- **Typography:** serif display (`Cormorant Garamond`) + clean sans body
-- **Motion:** subtle — no gradient overload, no glass-UI clichés
-- **Components:** all composed from shadcn primitives in `components/ui/`
+6. `/checkout` → place a test order → subscription activates
+7. `/dashboard` → pause or cancel the subscription
+8. Sign in as `admin@brewscovery.com` (any password) → unlock `/admin`
 
 ---
 
 ## 📸 Screenshots
 
-Run the app and capture screenshots of:
-- `/` — hero + featured mixes + trending + brewery spotlight
-- `/onboarding` — the 6-step taste quiz
-- `/discovery-mix` — personalized lineup with match scores & reasons
-- `/discover` — filterable catalog
-- `/beer/sakura-session-ipa` — beer detail page
-- `/dashboard` — customer cellar
-- `/admin` — admin overview + analytics
+**Home — marketing landing**
+![Home](public/screenshots/home.png)
 
-Drop them in `/public/screenshots/` and link from this section.
+**Taste quiz — onboarding**
+![Taste quiz](public/screenshots/onboarding.png)
+
+**Discovery Mix — curated packs + personalized lineup with match scores**
+![Discovery Mix](public/screenshots/discovery-mix.png)
+
+**Catalog — filterable beer discovery**
+![Catalog](public/screenshots/discover.png)
+
+**Beer detail — tasting notes, flavors, ratings**
+![Beer detail](public/screenshots/beer-detail.png)
+
+**Customer dashboard — subscription, favorites, taste profile**
+![Dashboard](public/screenshots/dashboard.png)
+
+**Admin overview — KPIs and catalog management**
+![Admin overview](public/screenshots/admin.png)
 
 ---
 
 ## 📦 Tech Stack
 
-- **Framework:** Next.js 14 (App Router) + TypeScript
-- **UI:** shadcn/ui primitives + Tailwind CSS + Radix UI + lucide-react
+- **Framework:** Next.js 14 (App Router) + TypeScript 5
+- **UI:** shadcn/ui + Tailwind CSS + Radix UI + lucide-react
 - **State:** React Context + `localStorage`
 - **Images:** Unsplash (remote)
+- **Dev tooling:** ESLint, strict TypeScript, PostCSS
 
 ---
 
-## 🗺️ Roadmap (next slices)
+## 🗺️ Roadmap
 
-- [ ] Real database (Prisma + Postgres) behind `lib/data`
-- [ ] Real auth (NextAuth)
+- [ ] Prisma + Postgres behind `lib/data`
+- [ ] NextAuth (real sign-in with magic link)
 - [ ] Stripe subscriptions (test mode)
-- [ ] Supabase storage for brewery imagery
-- [ ] Unit + e2e tests (Vitest + Playwright)
-- [ ] Real order history
+- [ ] Supabase / Cloudinary for brewery imagery
+- [ ] Order history
+- [ ] Vitest + Playwright (unit + e2e)
+- [ ] Responsive polish pass
+- [ ] Deploy to Vercel
 
 ---
 
 ## ⚠️ Responsibility
 
-Brewscovery is built on a responsible-consumption ethos. The product concept centers **smaller 8oz tasting pours** and **thoughtful curation over volume**, and the UI includes an age gate and responsibility messaging.
+Brewscovery's concept centers on **smaller 8oz tasting pours** and **thoughtful curation over volume**. The UI includes an age gate and responsibility messaging as first-class elements.
 
 ---
 
