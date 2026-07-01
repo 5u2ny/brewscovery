@@ -18,13 +18,6 @@
 
 Brewscovery is a portfolio-grade full-stack product demo centered on **Discovery Mix** — a monthly curated tasting pack of four 8oz pours, matched to each drinker's palate. The product promise: *curated selection, personalization, home delivery, smaller tasting quantities, local brewery support, and responsible drinking from home.*
 
-## Portfolio Context
-
-This repo maps to the product strategy and business analytics side of my portfolio: segmentation, onboarding, recommendation logic, subscription flow, admin analytics, and a coherent DTC brand system. It is useful proof for product roles because the business model, customer experience, and operating dashboard are built into the same demo.
-
-Every page is built around that promise: a premium dark brand system, a taste-quiz onboarding, transparent rules-based recommendations, a subscription-first cart, and a real admin surface for managing the catalog.
-
----
 
 ## ✨ Feature Highlights
 
